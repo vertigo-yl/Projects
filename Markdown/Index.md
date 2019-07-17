@@ -1,4 +1,27 @@
 
+# How to analyze A/B Testing result with python?
+
+This is a data challenge case from the book: “A Collection of Data Science Take-Home Challenges”. The dataset can be purchased on the website above, this article is only about solutions and python skills. All the code is on my Github.
+
+## 1. Experiment Overview
+
+Company XYZ is a worldwide e-commerce site with localized versions of the site. A data scientist at XYZ noticed that Spain-based users have a much higher conversion rate than any other Spanish-speaking country.
+
+They assumed that one reason could be the translation. All Spanish- speaking countries had the same translation of the site which was written by a Spaniard. They agreed to try a test where each country would have it’s one translation written by a local.
+
+After they run the test however, they are really surprised cause the test is negative. I.e., it appears that the non-localized translation was doing better!
+
+**Experimented Change：non-localized to localized translation**
+
+
+## 2. Data Analysis
+Have a look at this dataframe.
+
+We have 12 columns, are `‘user_id’, ‘date’, ‘source’, ‘device’, ‘browser_language’, ‘ads_channel’, ‘browser’, ‘conversion’, ‘test’, ‘sex’, ‘age’, ‘country’`
+
+All data from Spain are in the control group.
+
+
 
 ```python
 import  warnings
@@ -383,9 +406,9 @@ data.columns
 
 
 
-## 1. Confirm that the test is actually negative.
+## 1) Confirm that the test is actually negative.
 
-First, we need to prove that in the control group, spain performs better.
+First, we need to prove that Spain performed better than other countries before the change, in the control group.
 
 
 ```python
@@ -400,8 +423,10 @@ plt.show()
 ```
 
 
-![png](Index_files/Index_10_0.png)
+![png](Index_files/Index_11_0.png)
 
+
+Then we need to confirm the experiment result that non-localized translation performed better, or can say that the control group did better than the test group in countries except for Spain.
 
 
 ```python
@@ -412,7 +437,7 @@ plt.show()
 ```
 
 
-![png](Index_files/Index_11_0.png)
+![png](Index_files/Index_13_0.png)
 
 
 From the barplot above, it seems that the control groups perform worse. We need some statistal methods to prove it.
@@ -442,10 +467,16 @@ print(ttest_ind(test_val, cont_val, equal_var=False))
     Ttest_indResult(statistic=-7.3939374121344805, pvalue=1.4282994754055316e-13)
 
 
-## 2. Explain why that might be happening. Are the localized translations really worse?
+Definitely true.
+
+However, we can see that the average conversion in the test group is 0.0434, in the control group is 0.0483, drop 10%, which would be dramatic if it were true. So we need to dig into it.
+
+## 2) Explain why that might be happening. Are the localized translations really worse?
 
 
 Likely, there is for some reason some segment of users more likely to end up in test or in control, this segment had a significantly above/below conversion rate and this affected the overall results.
+
+* date
 
 
 ```python
@@ -466,7 +497,7 @@ plt.show()
 ```
 
 
-![png](Index_files/Index_18_0.png)
+![png](Index_files/Index_21_0.png)
 
 
 
@@ -483,7 +514,7 @@ plt.show()
 ```
 
 
-![png](Index_files/Index_19_0.png)
+![png](Index_files/Index_22_0.png)
 
 
 
@@ -500,7 +531,7 @@ plt.show()
 ```
 
 
-![png](Index_files/Index_20_0.png)
+![png](Index_files/Index_23_0.png)
 
 
 
@@ -517,7 +548,7 @@ plt.show()
 ```
 
 
-![png](Index_files/Index_21_0.png)
+![png](Index_files/Index_24_0.png)
 
 
 
@@ -534,7 +565,7 @@ plt.show()
 ```
 
 
-![png](Index_files/Index_22_0.png)
+![png](Index_files/Index_25_0.png)
 
 
 
@@ -551,7 +582,7 @@ plt.show()
 ```
 
 
-![png](Index_files/Index_23_0.png)
+![png](Index_files/Index_26_0.png)
 
 
 
@@ -568,7 +599,7 @@ plt.show()
 ```
 
 
-![png](Index_files/Index_24_0.png)
+![png](Index_files/Index_27_0.png)
 
 
 
@@ -586,7 +617,7 @@ plt.show()
 ```
 
 
-![png](Index_files/Index_25_0.png)
+![png](Index_files/Index_28_0.png)
 
 
 
@@ -603,7 +634,7 @@ plt.show()
 ```
 
 
-![png](Index_files/Index_26_0.png)
+![png](Index_files/Index_29_0.png)
 
 
 ### We can see that, except for country, all test groups perform worse. So take a closer look at country.
@@ -1058,8 +1089,13 @@ data.groupby(['country','test']).size()
 
 
 
- Argentina and Uruguay together have 80% test and 20% control!
-  Not a great success given that the goal was to improve conversion rate, but at least we know that a localized translation didn’t make things worse!
+ ### Argentina and Uruguay together have 80% test and 20% control!
+ 
+ Not a great success given that the goal was to improve conversion rate, but at least we know that a localized translation didn’t make things worse!
+ 
+ let’s check the test results after controlling for country.
+ 
+**After we control for country, the test clearly appears non significant. Not a great success given that the goal was to improve conversion rate, but at least we know that a localized translation didn’t make things worse!**
 
 
 ```python

@@ -290,6 +290,40 @@
     
 
     
+    \section{How to analyze A/B Testing result with
+python?}\label{how-to-analyze-ab-testing-result-with-python}
+
+This is a data challenge case from the book: ``A Collection of Data
+Science Take-Home Challenges''. The dataset can be purchased on the
+website above, this article is only about solutions and python skills.
+All the code is on my Github.
+
+\subsection{1. Experiment Overview}\label{experiment-overview}
+
+Company XYZ is a worldwide e-commerce site with localized versions of
+the site. A data scientist at XYZ noticed that Spain-based users have a
+much higher conversion rate than any other Spanish-speaking country.
+
+They assumed that one reason could be the translation. All Spanish-
+speaking countries had the same translation of the site which was
+written by a Spaniard. They agreed to try a test where each country
+would have it's one translation written by a local.
+
+After they run the test however, they are really surprised cause the
+test is negative. I.e., it appears that the non-localized translation
+was doing better!
+
+\textbf{Experimented Change：non-localized to localized translation}
+
+\subsection{2. Data Analysis}\label{data-analysis}
+
+Have a look at this dataframe.
+
+We have 12 columns, are
+\texttt{‘user\_id’,\ ‘date’,\ ‘source’,\ ‘device’,\ ‘browser\_language’,\ ‘ads\_channel’,\ ‘browser’,\ ‘conversion’,\ ‘test’,\ ‘sex’,\ ‘age’,\ ‘country’}
+
+All data from Spain are in the control group.
+
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}22}]:} \PY{k+kn}{import}  \PY{n+nn}{warnings}
          \PY{n}{warnings}\PY{o}{.}\PY{n}{simplefilter}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ignore}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
@@ -425,11 +459,11 @@ User:	 452867 True
                dtype='object')
 \end{Verbatim}
             
-    \subsection{1. Confirm that the test is actually
+    \subsection{1) Confirm that the test is actually
 negative.}\label{confirm-that-the-test-is-actually-negative.}
 
-First, we need to prove that in the control group, spain performs
-better.
+First, we need to prove that Spain performed better than other countries
+before the change, in the control group.
 
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}23}]:} \PY{n}{groupby\PYZus{}country} \PY{o}{=} \PY{n}{data}\PY{p}{[}\PY{n}{data}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{test}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{==} \PY{l+m+mi}{0}\PY{p}{]}\PY{p}{[}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{conversion}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{country}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{]}\PY{o}{.}\PY{n}{groupby}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{country}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{p}{)}
@@ -443,10 +477,14 @@ better.
 \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_10_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_11_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
+    Then we need to confirm the experiment result that non-localized
+translation performed better, or can say that the control group did
+better than the test group in countries except for Spain.
+
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}24}]:} \PY{c+c1}{\PYZsh{} Visualization}
          \PY{n}{fig}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{18}\PY{p}{,} \PY{l+m+mi}{6}\PY{p}{)}\PY{p}{)}
@@ -455,7 +493,7 @@ better.
 \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_11_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_13_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -488,13 +526,25 @@ Ttest\_indResult(statistic=-7.3939374121344805, pvalue=1.4282994754055316e-13)
 
     \end{Verbatim}
 
-    \subsection{2. Explain why that might be happening. Are the localized
+    Definitely true.
+
+However, we can see that the average conversion in the test group is
+0.0434, in the control group is 0.0483, drop 10\%, which would be
+dramatic if it were true. So we need to dig into it.
+
+    \subsection{2) Explain why that might be happening. Are the localized
 translations really
 worse?}\label{explain-why-that-might-be-happening.-are-the-localized-translations-really-worse}
 
 Likely, there is for some reason some segment of users more likely to
 end up in test or in control, this segment had a significantly
 above/below conversion rate and this affected the overall results.
+
+\begin{itemize}
+\tightlist
+\item
+  date
+\end{itemize}
 
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}73}]:} \PY{n}{data} \PY{o}{=} \PY{n}{data}\PY{p}{[}\PY{n}{data}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{country}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{!=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Spain}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
@@ -513,7 +563,7 @@ above/below conversion rate and this affected the overall results.
 \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_18_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_21_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -530,7 +580,7 @@ above/below conversion rate and this affected the overall results.
 \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_19_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_22_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -547,7 +597,7 @@ above/below conversion rate and this affected the overall results.
 \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_20_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_23_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -564,7 +614,7 @@ above/below conversion rate and this affected the overall results.
 \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_21_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_24_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -581,7 +631,7 @@ above/below conversion rate and this affected the overall results.
 \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_22_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_25_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -598,7 +648,7 @@ above/below conversion rate and this affected the overall results.
 \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_23_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_26_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -615,7 +665,7 @@ above/below conversion rate and this affected the overall results.
 \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_24_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_27_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -632,7 +682,7 @@ above/below conversion rate and this affected the overall results.
 \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_25_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_28_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -649,7 +699,7 @@ above/below conversion rate and this affected the overall results.
 \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_26_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{Index_files/Index_29_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -901,9 +951,18 @@ sex               0                      0                    0
           dtype: int64
 \end{Verbatim}
             
-    Argentina and Uruguay together have 80\% test and 20\% control! Not a
-great success given that the goal was to improve conversion rate, but at
-least we know that a localized translation didn't make things worse!
+    \#\#\# Argentina and Uruguay together have 80\% test and 20\% control!
+
+Not a great success given that the goal was to improve conversion rate,
+but at least we know that a localized translation didn't make things
+worse!
+
+let's check the test results after controlling for country.
+
+\textbf{After we control for country, the test clearly appears non
+significant. Not a great success given that the goal was to improve
+conversion rate, but at least we know that a localized translation
+didn't make things worse!}
 
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}133}]:} \PY{n}{countries} \PY{o}{=} \PY{p}{[}\PY{n}{name} \PY{k}{for} \PY{n}{name} \PY{o+ow}{in} \PY{n}{data}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{country}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{unique}\PY{p}{(}\PY{p}{)} \PY{k}{if} \PY{n}{name} \PY{o+ow}{is} \PY{o+ow}{not} \PY{n}{np}\PY{o}{.}\PY{n}{nan}\PY{p}{]}

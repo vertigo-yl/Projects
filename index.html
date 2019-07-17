@@ -13113,6 +13113,21 @@ div#notebook {
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="How-to-analyze-A/B-Testing-result-with-python?">How to analyze A/B Testing result with python?<a class="anchor-link" href="#How-to-analyze-A/B-Testing-result-with-python?">&#182;</a></h1><p>This is a data challenge case from the book: “A Collection of Data Science Take-Home Challenges”. The dataset can be purchased on the website above, this article is only about solutions and python skills. All the code is on my Github.</p>
+<h2 id="1.-Experiment-Overview">1. Experiment Overview<a class="anchor-link" href="#1.-Experiment-Overview">&#182;</a></h2><p>Company XYZ is a worldwide e-commerce site with localized versions of the site. A data scientist at XYZ noticed that Spain-based users have a much higher conversion rate than any other Spanish-speaking country.</p>
+<p>They assumed that one reason could be the translation. All Spanish- speaking countries had the same translation of the site which was written by a Spaniard. They agreed to try a test where each country would have it’s one translation written by a local.</p>
+<p>After they run the test however, they are really surprised cause the test is negative. I.e., it appears that the non-localized translation was doing better!</p>
+<p><strong>Experimented Change：non-localized to localized translation</strong></p>
+<h2 id="2.-Data-Analysis">2. Data Analysis<a class="anchor-link" href="#2.-Data-Analysis">&#182;</a></h2><p>Have a look at this dataframe.</p>
+<p>We have 12 columns, are <code>‘user_id’, ‘date’, ‘source’, ‘device’, ‘browser_language’, ‘ads_channel’, ‘browser’, ‘conversion’, ‘test’, ‘sex’, ‘age’, ‘country’</code></p>
+<p>All data from Spain are in the control group.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[22]:</div>
@@ -13664,7 +13679,7 @@ User:	 452867 True
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="1.-Confirm-that-the-test-is-actually-negative.">1. Confirm that the test is actually negative.<a class="anchor-link" href="#1.-Confirm-that-the-test-is-actually-negative.">&#182;</a></h2><p>First, we need to prove that in the control group, spain performs better.</p>
+<h2 id="1)-Confirm-that-the-test-is-actually-negative.">1) Confirm that the test is actually negative.<a class="anchor-link" href="#1)-Confirm-that-the-test-is-actually-negative.">&#182;</a></h2><p>First, we need to prove that Spain performed better than other countries before the change, in the control group.</p>
 
 </div>
 </div>
@@ -13710,6 +13725,14 @@ User:	 452867 True
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Then we need to confirm the experiment result that non-localized translation performed better, or can say that the control group did better than the test group in countries except for Spain.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
@@ -13839,7 +13862,19 @@ User:	 452867 True
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="2.-Explain-why-that-might-be-happening.-Are-the-localized-translations-really-worse?">2. Explain why that might be happening. Are the localized translations really worse?<a class="anchor-link" href="#2.-Explain-why-that-might-be-happening.-Are-the-localized-translations-really-worse?">&#182;</a></h2><p>Likely, there is for some reason some segment of users more likely to end up in test or in control, this segment had a significantly above/below conversion rate and this affected the overall results.</p>
+<p>Definitely true.</p>
+<p>However, we can see that the average conversion in the test group is 0.0434, in the control group is 0.0483, drop 10%, which would be dramatic if it were true. So we need to dig into it.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="2)-Explain-why-that-might-be-happening.-Are-the-localized-translations-really-worse?">2) Explain why that might be happening. Are the localized translations really worse?<a class="anchor-link" href="#2)-Explain-why-that-might-be-happening.-Are-the-localized-translations-really-worse?">&#182;</a></h2><p>Likely, there is for some reason some segment of users more likely to end up in test or in control, this segment had a significantly above/below conversion rate and this affected the overall results.</p>
+<ul>
+<li>date</li>
+</ul>
 
 </div>
 </div>
@@ -14927,8 +14962,9 @@ dtype: int64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Argentina and Uruguay together have 80% test and 20% control!
-  Not a great success given that the goal was to improve conversion rate, but at least we know that a localized translation didn’t make things worse!</p>
+<h3 id="Argentina-and-Uruguay-together-have-80%-test-and-20%-control!">Argentina and Uruguay together have 80% test and 20% control!<a class="anchor-link" href="#Argentina-and-Uruguay-together-have-80%-test-and-20%-control!">&#182;</a></h3><p>Not a great success given that the goal was to improve conversion rate, but at least we know that a localized translation didn’t make things worse!</p>
+<p>let’s check the test results after controlling for country.</p>
+<p><strong>After we control for country, the test clearly appears non significant. Not a great success given that the goal was to improve conversion rate, but at least we know that a localized translation didn’t make things worse!</strong></p>
 
 </div>
 </div>
